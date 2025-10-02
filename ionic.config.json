@@ -1,0 +1,7 @@
+{
+  "name": "Encuestas_frontend",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
