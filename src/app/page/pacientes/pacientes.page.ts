@@ -34,7 +34,6 @@ export class PacientesPage implements OnInit {
   async eliminar(documentId: string, estado: boolean) {
     try {
       await this.api.put(`pacientes/${documentId}`, { data: { estado: !estado } });
-      // update local state
       const idx = this.pacientes.findIndex(p => p.documentId === documentId);
       if (idx >= 0) this.pacientes[idx].estado = !estado;
     } catch (error) {
