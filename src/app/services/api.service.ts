@@ -31,7 +31,6 @@ export class ApiService {
         const status = error?.response?.status;
         if (status === 401) {
           this.auth.clearAll();
-          // redirect to login
           this.router.navigateByUrl('/home');
         }
         return Promise.reject(error);
@@ -57,5 +56,16 @@ export class ApiService {
 
   async put(path: string, data: any) {
     return this.client.put(`/api/${path}`, data);
+  }
+
+  async validateToken() {
+    try {
+      const response = await this.client.get('/api/users/me');
+      console.log('✅ Token válido, usuario:', response.data);
+      return response.data;
+    } catch (error) {
+      console.log('❌ Token inválido:', error);
+      throw error;
+    }
   }
 }
