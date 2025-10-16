@@ -17,7 +17,7 @@
         <ion-item-options side="end">
           <ion-item-option *ngIf="paciente.estado" (click)="eliminar(paciente.documentId, paciente.estado)" color="danger"><ion-icon name="close-outline"></ion-icon></ion-item-option>
           <ion-item-option *ngIf="!paciente.estado" (click)="eliminar(paciente.documentId, paciente.estado)" color="success"><ion-icon name="checkmark-outline"></ion-icon></ion-item-option>
-          <ion-item-option color="success"><ion-icon name="pencil-outline"></ion-icon></ion-item-option>
+          <ion-item-option (click)="abrirModalEditar(paciente)" color="success"><ion-icon name="pencil-outline"></ion-icon></ion-item-option>
           <ion-item-option (click)="abrirModal(paciente)" color="primary"><ion-icon name="list-outline"></ion-icon></ion-item-option>
         </ion-item-options>
       </ion-item-sliding>
@@ -73,6 +73,118 @@
             <ion-col size="6"><ion-checkbox mode="ios" [checked]="pacienteSeleccionado?.Hereditarias" labelPlacement="start">Si </ion-checkbox></ion-col>
             <ion-col size="6"><ion-checkbox mode="ios" [checked]="!pacienteSeleccionado?.Hereditarias" labelPlacement="start">No </ion-checkbox></ion-col>
           </ion-row>
+        </ion-grid>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+  <!-- Modal para editar paciente -->
+  <ion-modal #modalEditar>
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-buttons slot="start">
+            <ion-button (click)="cerrarModalEditar()">Cancelar</ion-button>
+          </ion-buttons>
+          <ion-title>Editar Paciente</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="guardarCambios()" [disabled]="!formularioValido">Guardar</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="ion-padding">
+        <ion-grid fixed>
+          <ion-row>
+            <ion-col size="12"><h2>DATOS GENERALES</h2></ion-col>
+          </ion-row>
+          
+          <ion-row>
+            <ion-col size="12">
+              <ion-item>
+                <ion-label position="stacked">Nombre *</ion-label>
+                <ion-input 
+                  [(ngModel)]="pacienteEditando.nombre" 
+                  placeholder="Ingrese el nombre"
+                  type="text">
+                </ion-input>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+
+          <ion-row>
+            <ion-col size="12">
+              <ion-item>
+                <ion-label position="stacked">Apellido *</ion-label>
+                <ion-input 
+                  [(ngModel)]="pacienteEditando.Apellido" 
+                  placeholder="Ingrese el apellido"
+                  type="text">
+                </ion-input>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+
+          <ion-row>
+            <ion-col size="4">
+              <ion-item>
+                <ion-label position="stacked">Edad</ion-label>
+                <ion-input 
+                  [(ngModel)]="pacienteEditando.Edad" 
+                  placeholder="Edad"
+                  type="number">
+                </ion-input>
+              </ion-item>
+            </ion-col>
+            <ion-col size="4">
+              <ion-item>
+                <ion-label position="stacked">Peso (kg)</ion-label>
+                <ion-input 
+                  [(ngModel)]="pacienteEditando.Peso" 
+                  placeholder="Peso"
+                  type="number">
+                </ion-input>
+              </ion-item>
+            </ion-col>
+            <ion-col size="4">
+              <ion-item>
+                <ion-label position="stacked">Estatura (cm)</ion-label>
+                <ion-input 
+                  [(ngModel)]="pacienteEditando.Estatura" 
+                  placeholder="Estatura"
+                  type="number">
+                </ion-input>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+
+          <ion-row>
+            <ion-col size="12"><h2>ENFERMEDADES</h2></ion-col>
+          </ion-row>
+
+          <ion-row>
+            <ion-col size="12">
+              <ion-item>
+                <ion-label>Diabetes</ion-label>
+                <ion-checkbox 
+                  slot="end" 
+                  [(ngModel)]="pacienteEditando.Diabetes">
+                </ion-checkbox>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+
+          <ion-row>
+            <ion-col size="12">
+              <ion-item>
+                <ion-label>Hipertensión</ion-label>
+                <ion-checkbox 
+                  slot="end" 
+                  [(ngModel)]="pacienteEditando.Hipertencion">
+                </ion-checkbox>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+
         </ion-grid>
       </ion-content>
     </ng-template>
