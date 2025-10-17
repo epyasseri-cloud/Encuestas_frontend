@@ -101,7 +101,7 @@ export class ApiService {
 
   // Método para obtener la URL del servidor detectado
   getServerUrl(): string | null {
-    return this.serverConfig.getDetectedServer() || this.client.defaults.baseURL || null;
+    return this.client.defaults.baseURL || null;
   }
 
   // Método para forzar re-detección del servidor
