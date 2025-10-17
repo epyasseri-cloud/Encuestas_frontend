@@ -3,7 +3,15 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  environmentName: 'Development Auto',
+  apiUrl: 'http://192.168.1.204:1337',
+  autoDetectServer: true,
+  features: {
+    serverDetection: true,
+    offlineMode: false,
+    debugging: true
+  }
 };
 
 /*

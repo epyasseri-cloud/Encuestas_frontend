@@ -2,18 +2,30 @@ import { Injectable } from '@angular/core';
 import axios, { AxiosInstance } from 'axios';
 import { Router } from '@angular/router';
 import { AuthService } from './auth.service';
+import { ServerConfigService } from './server-config.service';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ApiService {
   private client: AxiosInstance;
+  private isInitialized = false;
 
-  constructor(private auth: AuthService, private router: Router) {
+  constructor(
+    private auth: AuthService, 
+    private router: Router,
+    private serverConfig: ServerConfigService
+  ) {
+    // Inicializar con URL por defecto
     this.client = axios.create({
-      baseURL: 'http://192.168.1.204:1337'
+      baseURL: environment.apiUrl
     });
 
+    this.setupInterceptors();
+  }
+
+  private setupInterceptors() {
     // request interceptor: attach token
     this.client.interceptors.request.use((config) => {
       const token = this.auth.getToken();
@@ -38,71 +50,64 @@ export class ApiService {
     );
   }
 
-  async login(identifier: string, password: string) {
-    try {
-      console.log('🔍 ApiService: Intentando login con:', { identifier, url: 'http://192.168.1.204:1337/api/auth/local' });
-      
-      // Usar la ruta correcta de Strapi v5
-      const res = await this.client.post('/api/auth/local', { identifier, password });
-      
-      console.log('✅ ApiService: Login exitoso:', res.data);
-      
-      // persist token and user if present
-      if (res?.data?.jwt) {
-        this.auth.setToken(res.data.jwt);
-        console.log('🔑 ApiService: Token guardado');
+  private async ensureServerDetected() {
+    if (!this.isInitialized) {
+      if (environment.autoDetectServer) {
+        const serverUrl = await this.serverConfig.detectServer();
+        this.client.defaults.baseURL = serverUrl;
+        console.log(`🔗 ApiService configurado con auto-detección: ${serverUrl}`);
+      } else {
+        this.client.defaults.baseURL = environment.apiUrl;
+        console.log(`🔗 ApiService configurado con URL fija: ${environment.apiUrl}`);
       }
-      if (res?.data?.user) {
-        this.auth.setUser(res.data.user);
-        console.log('👤 ApiService: Usuario guardado:', res.data.user);
-      }
-      
-      return res;
-    } catch (error) {
-      console.error('❌ ApiService: Error en login:', error);
-      throw error;
+      this.isInitialized = true;
     }
   }
 
+  async login(identifier: string, password: string) {
+    await this.ensureServerDetected();
+    const res = await this.client.post('/api/auth/local', { identifier, password });
+    
+    // persist token and user if present
+    if (res?.data?.jwt) {
+      this.auth.setToken(res.data.jwt);
+    }
+    if (res?.data?.user) {
+      this.auth.setUser(res.data.user);
+    }
+    
+    return res;
+  }
+
   async get(path: string) {
+    await this.ensureServerDetected();
     return this.client.get(`/api/${path}`);
   }
 
   async put(path: string, data: any) {
+    await this.ensureServerDetected();
     return this.client.put(`/api/${path}`, data);
   }
 
   async validateToken() {
     try {
+      await this.ensureServerDetected();
       const response = await this.client.get('/api/users/me');
-      console.log('✅ Token válido, usuario:', response.data);
       return response.data;
     } catch (error) {
-      console.log('❌ Token inválido:', error);
       throw error;
     }
   }
 
-  async testConnection() {
-    try {
-      console.log('🔍 ApiService: Probando conectividad con servidor...');
-      // Probar primero con un endpoint básico sin autenticación
-      const response = await axios.get('http://192.168.1.204:1337/_health', {
-        timeout: 5000
-      });
-      console.log('✅ ApiService: Conectividad OK con _health, respuesta:', response.status);
-      return response;
-    } catch (healthError) {
-      console.log('⚠️ ApiService: _health falló, probando con pacientes...');
-      try {
-        // Si falla health, probar con pacientes (puede dar 401 pero eso significa que conecta)
-        const response = await this.client.get('/api/pacientes');
-        console.log('✅ ApiService: Conectividad OK con pacientes, respuesta:', response.status);
-        return response;
-      } catch (error) {
-        console.error('❌ ApiService: Error de conectividad total:', error);
-        throw error;
-      }
-    }
+  // Método para obtener la URL del servidor detectado
+  getServerUrl(): string | null {
+    return this.serverConfig.getDetectedServer() || this.client.defaults.baseURL || null;
+  }
+
+  // Método para forzar re-detección del servidor
+  async resetAndDetectServer() {
+    this.serverConfig.resetDetection();
+    this.isInitialized = false;
+    await this.ensureServerDetected();
   }
 }
