@@ -57,6 +57,7 @@ export class ApiService {
         this.client.defaults.baseURL = serverUrl;
         console.log(`🔗 ApiService configurado con auto-detección: ${serverUrl}`);
       } else {
+        // Usar URL fija del environment
         this.client.defaults.baseURL = environment.apiUrl;
         console.log(`🔗 ApiService configurado con URL fija: ${environment.apiUrl}`);
       }

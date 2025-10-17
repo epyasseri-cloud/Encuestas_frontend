@@ -4,14 +4,8 @@
 
 export const environment = {
   production: false,
-  environmentName: 'Development Auto',
-  apiUrl: '', // Se detectará automáticamente
-  autoDetectServer: true,
-  features: {
-    serverDetection: true,
-    offlineMode: false,
-    debugging: true
-  }
+  apiUrl: 'http://192.168.1.204:1337',
+  autoDetectServer: false
 };
 
 /*
